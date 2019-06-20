@@ -1,7 +1,11 @@
 #include <NeoPixelBus.h>
+
 #include "BassListener.h"
 #include "RotaryEncoder.h"
 #include "DigiPoti.h"
+
+#include "animations/Animation.h"
+#include "animations/Rainbow.h"
 
 const int NUM_LEDS = 130;
 //const int DATA_PIN = 1;   // 1 2 4 5 6 7
@@ -19,20 +23,23 @@ const int NUM_LEDS = 130;
 // (-> avoids if(red>255) conditions etc...)
 
 
-uint8_t h[NUM_LEDS];
-uint8_t s[NUM_LEDS];
-uint8_t v[NUM_LEDS];
-float t;
-uint8_t hh;
-
-long tLedUpdate = 0;
-int framesSinceHit = 100000;
-bool showBeat = false;
-
 NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod> leds(NUM_LEDS, 0);
+
 BassListener bassListener(A0);
 RotaryEncoder rot(D3, D2, D4); // cl, dt, sw
 DigiPoti poti(D6, D5);
+
+AnimationContext animCtx(NUM_LEDS);
+
+// If beat was detected since last update
+bool showBeat = false;
+long lastLoop = 0;
+long animTpf = 0;
+
+int ledUpdateInterval = 0;
+bool ledsUpdated = false;
+
+AnimRainbow animRainbow;
 
 
 
@@ -41,7 +48,6 @@ void setup() {
     Serial.println();
     
     poti.setup();
-    
     rot.setup();
     
     // LED Brightness
@@ -60,15 +66,6 @@ void setup() {
     // this resets all the neopixels to an off state
     leds.Begin();
     leds.Show();
-    
-    for(int i=0; i<NUM_LEDS; ++i) {
-        h[i] = 20; //((float) i / NUM_LEDS * 255) + 0.5;
-        s[i] = 255;
-        v[i] = 70;
-    }
-    
-    t = 0;
-    hh = 0;
 }
 
 
@@ -83,97 +80,14 @@ bool apply() {
         s[i] = constrain(s[i], 0, 255);
         v[i] = constrain(v[i], 0, 255);*/
         
-        color.H = h[i] / 255.0;
-        color.S = s[i] / 255.0;
-        color.B = v[i] / 255.0;
+        color.H = animCtx.leds[i].h / 255.0f;
+        color.S = animCtx.leds[i].s / 255.0f;
+        color.B = animCtx.leds[i].b / 255.0f;
         leds.SetPixelColor(i, color);
     }
     
     leds.Show();
     return true;
-}
-
-
-void anim1() {
-    float vFactor = (framesSinceHit+1) / 1500.0f;
-    vFactor = pow(vFactor, 0.33);
-    
-    int startIndex = int(t*200) % NUM_LEDS;
-    hh = int(t*40.0f) % 255;
-    
-    int i=0;
-    for(; i<startIndex; ++i) {
-        v[i] = 1;
-        h[i] = hh;
-    }
-    
-    int len = 60; //53;
-    for(int k=0; k<len; ++k, ++i) {
-        v[i] = pow((float)k/len, 2.0) * 255.0f * vFactor;
-        h[i] = hh;
-    }
-    
-    for(; i<NUM_LEDS; ++i) {
-        v[i] = 1;
-        h[i] = hh;
-    }
-}
-
-
-void anim2() {
-    int colorVHigh = rot.getValue1(); //20; // 80, 70
-    int colorVLow  = colorVHigh / 5; //3; // 20, 50
-    int colorVDiff = colorVHigh - colorVLow;
-    
-    float vFactor = (framesSinceHit+1) / 1500.0f;
-    vFactor = pow(vFactor, 0.33);
-    int colorV = colorVHigh - constrain(vFactor * colorVDiff, 0, colorVDiff);
-    
-    for(int i=0; i<NUM_LEDS; ++i) {
-        double val = 0.5 * ( 1.0 + sin(t*1.0 + (2.0 * i / NUM_LEDS * 3.1415926)) );
-        h[i] = 255.0 * val;
-        //h[i] = round(h[i]/30.0) * 30.0;
-        //s[i] = 55.0 + 200.0 * val;
-        //v[i] = 3.0 + 47.0 * val;
-        //h[i] += 3;
-        v[i] = colorV;
-    }
-}
-
-
-void anim2a() {
-    int colorVHigh = rot.getValue1(); //20; // 80, 70
-    int colorVLow  = colorVHigh / 5; //3; // 20, 50
-    int colorVDiff = colorVHigh - colorVLow;
-    
-    float vFactor = (framesSinceHit+1) / 1500.0f;
-    vFactor = pow(vFactor, 0.33);
-    int colorV = colorVHigh - constrain(vFactor * colorVDiff, 0, colorVDiff);
-    
-    for(int i=0; i<NUM_LEDS; ++i) {
-        /*double val = sin(t);
-        if(val > 0)
-            h[i] = 60;
-        else
-            h[i] = 120;
-        
-        double val = 0.5 * ( 1.0 + sin(t*1.0 + (0.33 * i / NUM_LEDS * 3 * 2.0 * 3.1415926)) );*/
-        double val = 0.5 * ( 1.0 + sin(t*1.0 + (2.0 * i / NUM_LEDS * 3.1415926)) );
-        h[i] = 0.0 + 255.0 * val;
-        //h[i] = round(h[i]/10.0) * 10.0;
-        //s[i] = 55.0 + 200.0 * val;
-        //v[i] = 3.0 + 47.0 * val;
-        //h[i] += 3;
-        v[i] = colorV;
-    }
-}
-
-
-void anim3() {
-    uint8_t h1 = int(t*40.0f) % 255;
-    uint8_t h2 = h1 + 128;
-    h[0] = h[1] = h[2] = h[4] = h[8] = h1;
-    h[3] = h[5] = h[6] = h[7] = h[9] = h2;
 }
 
 
@@ -196,63 +110,76 @@ void updateStatusLeds() {
     // Gain status
     int avg = bassListener.getLastFrameAvgAmp();
 
-    v[0] = colorV;
+    animCtx.leds[0].b = colorV;
     if(avg > 512 + gainRange)
-        h[0] = 85; // green
+        animCtx.leds[0].h = 85; // green
     else if(avg < 512 - gainRange)
-        h[0] = 0; // red
+        animCtx.leds[0].h = 0; // red
     else
-        v[0] = 0; // off
+        animCtx.leds[0].b = 0; // off
     
     // Sensitivity
-    h[1] = map(rot.getValue2(), 0, 100, 0, 85);
-    v[1] = colorV;
+    animCtx.leds[1].h = map(rot.getValue2(), 0, 100, 0, 85);
+    animCtx.leds[1].b = colorV;
     
     // Beat
-    h[2] = 128;
-    v[2] = showBeat ? colorV : 0;
+    animCtx.leds[2].h = 128;
+    animCtx.leds[2].b = showBeat ? colorV : 0;
     showBeat = false;
 }
 
 
 
-int ledUpdateInterval = 0;
+
 
 void loop() {
     long t0 = micros();
+    long loopTpf = t0 - lastLoop;
+    lastLoop = t0;
+    animTpf += loopTpf;
+    animCtx.timeSinceBeat += loopTpf;
     
     if(rot.update())
     {
-        int rotVal = rot.getValue2();
-        bassListener.setSensitivity(rotVal);
+        animCtx.brightnessFactor = rot.getValue1() / 255.0;
+        bassListener.setSensitivity( rot.getValue2() );
     }
     
     bool frameCompleted = bassListener.readMic();
     if(frameCompleted)
         updateGain();
     
-    framesSinceHit++;
     if(bassListener.hasHit())
     {
-        framesSinceHit = 0;
-        t += 0.25;
-        Serial.println("-------------------------");
         showBeat = true;
+        animCtx.timeSinceBeat = 0;
+        //Serial.println("-------------------------");
     }
 
-    // 170 =~ 40fps, 222 =~ 30fps, 266 =~ 25fps, 340 = ~20fps, 400 = ~17fps
-    if(ledUpdateInterval++ > 222 && leds.CanShow()) // 222
+    // 170 =~ 40fps, 222 =~ 30fps, 266 =~ 25fps, 340 = ~20fps, 400 = ~17fps   ---> outdated values (they are calculated based on 150 mics frametime)
+    if(ledUpdateInterval++ > 130 && leds.CanShow())
     {
-        anim2();
-        updateStatusLeds();
-        if(apply())
+        if(!ledsUpdated)
+        {
+            animRainbow.update(animCtx, animTpf, showBeat);
+            updateStatusLeds();
+            animTpf = 0;
+            ledsUpdated = true;
+        }
+        
+        if(apply()) {
             ledUpdateInterval = 0;
+            ledsUpdated = false;
+        }
     }
     
-    t += 0.00015;
-    
+
     long tDiff = micros() - t0;
-    long sleepTime = 150 - tDiff;
+    
+    //Serial.print("loop tDiff: ");
+    //Serial.println(tDiff);
+    
+    long sleepTime = 250 - tDiff; // 150
     if(sleepTime > 0)
         delayMicroseconds(sleepTime);
     else

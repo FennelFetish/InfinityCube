@@ -1,7 +1,7 @@
 #include "DigiPoti.h"
 #include <Arduino.h>
 
-#define PRINT_VAL
+//#define PRINT_VAL
 
 
 DigiPoti::DigiPoti(int incPin, int udPin) :

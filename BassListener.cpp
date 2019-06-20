@@ -1,8 +1,8 @@
 #include "BassListener.h"
 #include <Arduino.h>
 
-#define PRINT_AMP
-#define PRINT_RANGE
+//#define PRINT_AMP
+//#define PRINT_RANGE
 
 
 namespace
