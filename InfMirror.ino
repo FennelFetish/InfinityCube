@@ -6,6 +6,11 @@
 
 #include "animations/Animation.h"
 #include "animations/Rainbow.h"
+#include "animations/Dot.h"
+#include "animations/NodeBeam.h"
+#include "animations/FadeFilter.h"
+#include "animations/HueFilter.h"
+#include "animations/MoveFilter.h"
 
 const int NUM_LEDS = 130;
 //const int DATA_PIN = 1;   // 1 2 4 5 6 7
@@ -29,7 +34,7 @@ BassListener bassListener(A0);
 RotaryEncoder rot(D3, D2, D4); // cl, dt, sw
 DigiPoti poti(D6, D5);
 
-AnimationContext animCtx(NUM_LEDS);
+AnimationContext animCtx(NUM_LEDS, 43);
 
 // If beat was detected since last update
 bool showBeat = false;
@@ -39,7 +44,8 @@ long animTpf = 0;
 int ledUpdateInterval = 0;
 bool ledsUpdated = false;
 
-AnimRainbow animRainbow;
+int numAnimations = 0;
+Animation** animations;
 
 
 
@@ -66,6 +72,14 @@ void setup() {
     // this resets all the neopixels to an off state
     leds.Begin();
     leds.Show();
+    
+    numAnimations = 2;
+    animations = new Animation*[numAnimations];
+    /*animations[0] = new NodeBeam();
+    animations[1] = new FadeFilter();
+    animations[2] = new HueFilter();*/
+    animations[0] = new Dot();
+    animations[1] = new MoveFilter();
 }
 
 
@@ -125,7 +139,6 @@ void updateStatusLeds() {
     // Beat
     animCtx.leds[2].h = 128;
     animCtx.leds[2].b = showBeat ? colorV : 0;
-    showBeat = false;
 }
 
 
@@ -161,8 +174,14 @@ void loop() {
     {
         if(!ledsUpdated)
         {
-            animRainbow.update(animCtx, animTpf, showBeat);
-            updateStatusLeds();
+            for(int i=0; i<numAnimations; ++i)
+                animations[i]->prepare(animCtx);
+            
+            for(int i=0; i<numAnimations; ++i)
+                animations[i]->update(animCtx, animTpf, showBeat);
+            
+            //updateStatusLeds();
+            showBeat = false;
             animTpf = 0;
             ledsUpdated = true;
         }

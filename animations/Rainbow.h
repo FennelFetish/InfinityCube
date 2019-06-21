@@ -11,7 +11,7 @@ class AnimRainbow : public Animation
     public:
         AnimRainbow() : t(0) {}
         
-        virtual void update(AnimationContext& ctx, long tpf, bool beat)
+        virtual void update(AnimationContext& ctx, long tpf, bool beat) override
         {
             t += tpf / 1000000.0f;
             
@@ -31,7 +31,11 @@ class AnimRainbow : public Animation
                 //v[i] = 3.0 + 47.0 * val;
                 //h[i] += 3;
                 ctx.leds[i].s = 255;
-                ctx.leds[i].b = colorV;
+                
+                if(ctx.leds[i].h > 80)
+                    ctx.leds[i].b = colorV;
+                else
+                    ctx.leds[i].b = 0;
             }
         }
     
