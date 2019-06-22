@@ -10,9 +10,12 @@
 #include "animations/Stars.h"
 #include "animations/Strobo.h"
 #include "animations/NodeBeam.h"
+#include "animations/KnightRider.h"
 #include "animations/FadeFilter.h"
 #include "animations/HueFilter.h"
 #include "animations/MoveFilter.h"
+#include "animations/FeedbackFilter.h"
+#include "animations/RandomizationFilter.h"
 
 const int NUM_LEDS = 130;
 //const int DATA_PIN = 1;   // 1 2 4 5 6 7
@@ -46,8 +49,8 @@ long animTpf = 0;
 int ledUpdateInterval = 0;
 bool ledsUpdated = false;
 
-int numAnimations = 0;
-Animation** animations;
+//int numAnimations = 0;
+Animation* animation;
 
 
 
@@ -59,7 +62,7 @@ void setup() {
     rot.setup();
     
     // LED Brightness
-    rot.setValue1(180); // 88   // 250 is too much!
+    rot.setValue1(180); // 88   // 250 draws too much power, but we need hight brightness when starting so powerbanks will turn on
     rot.setMin1(5);
     rot.setMax1(rot.getValue1()); 
     rot.setStep1(3);
@@ -75,24 +78,45 @@ void setup() {
     leds.Begin();
     leds.Show();
     
-    numAnimations = 3;
-    animations = new Animation*[numAnimations];
     
-    //animations[0] = new AnimRainbow();
+    //addAnimation( new AnimRainbow() );
     
-    /*animations[0] = new Stars(100);
-    animations[1] = new FadeFilter(10);
-    animations[2] = new MoveFilter(11);*/
+    addAnimation( new Stars(100) );
+    addAnimation( new FadeFilter(10) );
+    addAnimation( new MoveFilter(11) );
     
-    /*animations[0] = new Strobo();
-    animations[1] = new HueFilter();*/
+    /*addAnimation( new Strobo() );
+    addAnimation( new HueFilter() );*/
     
-    animations[0] = new NodeBeam();
-    animations[1] = new HueFilter();
-    animations[2] = new FadeFilter(20);
+    /*addAnimation( new NodeBeam() );
+    addAnimation( new HueFilter() );
+    addAnimation( new FadeFilter(20) );
+    addAnimation( new RandomizationFilter(animCtx) );*/
     
-    /*animations[0] = new Dot();
-    animations[1] = new MoveFilter();*/
+    /*addAnimation( new Dot() );
+    addAnimation( new MoveFilter(60, 0) );
+    addAnimation( new FeedbackFilter(animCtx, 0.12) );
+    addAnimation( new HueFilter() );*/
+    //addAnimation( new FadeFilter(40) );
+    
+    /*addAnimation( new KnightRider(80) );
+    addAnimation( new HueFilter() );*/
+    //addAnimation( new FeedbackFilter(animCtx, 0.6) );
+    //addAnimation( new FadeFilter(40) );
+}
+
+
+void addAnimation(Animation* anim) {
+    if(animation == nullptr) {
+        animation = anim;
+        return;
+    }
+    
+    Animation* a = animation;
+    while(a->next != nullptr)
+        a = a->next;
+    
+    a->next = anim;
 }
 
 
@@ -187,11 +211,17 @@ void loop() {
     {
         if(!ledsUpdated)
         {
-            for(int i=0; i<numAnimations; ++i)
-                animations[i]->prepare(animCtx);
+            Animation* anim = animation;
+            while(anim != nullptr) {
+                anim->prepare(animCtx);
+                anim = anim->next;
+            }
             
-            for(int i=0; i<numAnimations; ++i)
-                animations[i]->update(animCtx, animTpf, showBeat);
+            anim = animation;
+            while(anim != nullptr) {
+                anim->update(animCtx, animTpf, showBeat);
+                anim = anim->next;
+            }
             
             //updateStatusLeds();
             showBeat = false;

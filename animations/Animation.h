@@ -50,6 +50,11 @@ class AnimationContext
 class Animation
 {
     public:
+        Animation* next;
+        
+        Animation() : next(nullptr) {}
+        
+    
         virtual void prepare(AnimationContext& ctx) {}
     
     
