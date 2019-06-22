@@ -7,6 +7,8 @@
 #include "animations/Animation.h"
 #include "animations/Rainbow.h"
 #include "animations/Dot.h"
+#include "animations/Stars.h"
+#include "animations/Strobo.h"
 #include "animations/NodeBeam.h"
 #include "animations/FadeFilter.h"
 #include "animations/HueFilter.h"
@@ -57,7 +59,7 @@ void setup() {
     rot.setup();
     
     // LED Brightness
-    rot.setValue1(80); // 88   // 250 is too much!
+    rot.setValue1(180); // 88   // 250 is too much!
     rot.setMin1(5);
     rot.setMax1(rot.getValue1()); 
     rot.setStep1(3);
@@ -73,13 +75,24 @@ void setup() {
     leds.Begin();
     leds.Show();
     
-    numAnimations = 2;
+    numAnimations = 3;
     animations = new Animation*[numAnimations];
-    /*animations[0] = new NodeBeam();
-    animations[1] = new FadeFilter();
-    animations[2] = new HueFilter();*/
-    animations[0] = new Dot();
-    animations[1] = new MoveFilter();
+    
+    //animations[0] = new AnimRainbow();
+    
+    /*animations[0] = new Stars(100);
+    animations[1] = new FadeFilter(10);
+    animations[2] = new MoveFilter(11);*/
+    
+    /*animations[0] = new Strobo();
+    animations[1] = new HueFilter();*/
+    
+    animations[0] = new NodeBeam();
+    animations[1] = new HueFilter();
+    animations[2] = new FadeFilter(20);
+    
+    /*animations[0] = new Dot();
+    animations[1] = new MoveFilter();*/
 }
 
 
@@ -170,7 +183,7 @@ void loop() {
     }
 
     // 170 =~ 40fps, 222 =~ 30fps, 266 =~ 25fps, 340 = ~20fps, 400 = ~17fps   ---> outdated values (they are calculated based on 150 mics frametime)
-    if(ledUpdateInterval++ > 130 && leds.CanShow())
+    if(ledUpdateInterval++ > 140 && leds.CanShow()) // 130
     {
         if(!ledsUpdated)
         {
@@ -195,10 +208,10 @@ void loop() {
 
     long tDiff = micros() - t0;
     
-    //Serial.print("loop tDiff: ");
-    //Serial.println(tDiff);
+    /*Serial.print("loop tDiff: ");
+    Serial.println(tDiff);*/
     
-    long sleepTime = 250 - tDiff; // 150
+    long sleepTime = 220 - tDiff; // 150       250 (80 MHz)
     if(sleepTime > 0)
         delayMicroseconds(sleepTime);
     else

@@ -6,7 +6,7 @@
 class NodeBeam : public Animation
 {
     private:
-        static constexpr float beatLen = 200000.0f;
+        static constexpr float beatLen = 100000.0f;
     
         uint8_t minBeamLen;
         long tSinceBeat;

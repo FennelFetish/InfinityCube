@@ -13,8 +13,8 @@ class MoveFilter : public Animation
         unsigned int tStep;
     
     public:
-        MoveFilter() :
-            stepsPerSecond(120), stepsOnBeat(14),
+        MoveFilter(int stepsPerSecond=120) :
+            stepsPerSecond(stepsPerSecond), stepsOnBeat(14),
             stepMicroseconds(round(1000000 / stepsPerSecond)),
             tStep(0)
         {}
