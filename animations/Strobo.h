@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Animation.h"
+#include "../Animation.h"
 
 
 class Strobo : public Animation
@@ -28,5 +28,4 @@ class Strobo : public Animation
                 ctx.leds[i].b = b;
             }
         }
-    
 };

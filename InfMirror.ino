@@ -4,18 +4,10 @@
 #include "RotaryEncoder.h"
 #include "DigiPoti.h"
 
-#include "animations/Animation.h"
-#include "animations/Rainbow.h"
-#include "animations/Dot.h"
-#include "animations/Stars.h"
-#include "animations/Strobo.h"
-#include "animations/NodeBeam.h"
-#include "animations/KnightRider.h"
-#include "animations/FadeFilter.h"
-#include "animations/HueFilter.h"
-#include "animations/MoveFilter.h"
-#include "animations/FeedbackFilter.h"
-#include "animations/RandomizationFilter.h"
+#include "Animation.h"
+#include "AnimationChanger.h"
+
+
 
 const int NUM_LEDS = 130;
 //const int DATA_PIN = 1;   // 1 2 4 5 6 7
@@ -40,6 +32,7 @@ RotaryEncoder rot(D3, D2, D4); // cl, dt, sw
 DigiPoti poti(D6, D5);
 
 AnimationContext animCtx(NUM_LEDS, 43);
+AnimationChanger animChanger;
 
 // If beat was detected since last update
 bool showBeat = false;
@@ -48,9 +41,6 @@ long animTpf = 0;
 
 int ledUpdateInterval = 0;
 bool ledsUpdated = false;
-
-//int numAnimations = 0;
-Animation* animation;
 
 
 
@@ -62,7 +52,7 @@ void setup() {
     rot.setup();
     
     // LED Brightness
-    rot.setValue1(180); // 88   // 250 draws too much power, but we need hight brightness when starting so powerbanks will turn on
+    rot.setValue1(200); // 88   // 250 draws too much power, but we need hight brightness when starting so powerbanks will turn on
     rot.setMin1(5);
     rot.setMax1(rot.getValue1()); 
     rot.setStep1(3);
@@ -71,54 +61,15 @@ void setup() {
     rot.setValue2(75);
     rot.setMin2(0);
     rot.setMax2(100);
-    rot.setStep2(3);
+    rot.setStep2(2);
     bassListener.setSensitivity(rot.getValue2());
     
     // this resets all the neopixels to an off state
     leds.Begin();
     leds.Show();
     
-    
-    //addAnimation( new AnimRainbow() );
-    
-    addAnimation( new Stars(100) );
-    addAnimation( new FadeFilter(10) );
-    addAnimation( new MoveFilter(11) );
-    
-    /*addAnimation( new Strobo() );
-    addAnimation( new HueFilter() );*/
-    
-    /*addAnimation( new NodeBeam() );
-    addAnimation( new HueFilter() );
-    addAnimation( new FadeFilter(20) );
-    addAnimation( new RandomizationFilter(animCtx) );*/
-    
-    /*addAnimation( new Dot() );
-    addAnimation( new MoveFilter(60, 0) );
-    addAnimation( new FeedbackFilter(animCtx, 0.12) );
-    addAnimation( new HueFilter() );*/
-    //addAnimation( new FadeFilter(40) );
-    
-    /*addAnimation( new KnightRider(80) );
-    addAnimation( new HueFilter() );*/
-    //addAnimation( new FeedbackFilter(animCtx, 0.6) );
-    //addAnimation( new FadeFilter(40) );
+    animChanger.createRandom(animCtx);
 }
-
-
-void addAnimation(Animation* anim) {
-    if(animation == nullptr) {
-        animation = anim;
-        return;
-    }
-    
-    Animation* a = animation;
-    while(a->next != nullptr)
-        a = a->next;
-    
-    a->next = anim;
-}
-
 
 
 bool apply() {
@@ -211,13 +162,15 @@ void loop() {
     {
         if(!ledsUpdated)
         {
-            Animation* anim = animation;
+            animChanger.update(animCtx, animTpf, showBeat);
+            
+            Animation* anim = animChanger.animation;
             while(anim != nullptr) {
                 anim->prepare(animCtx);
                 anim = anim->next;
             }
             
-            anim = animation;
+            anim = animChanger.animation;
             while(anim != nullptr) {
                 anim->update(animCtx, animTpf, showBeat);
                 anim = anim->next;

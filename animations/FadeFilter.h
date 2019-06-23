@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Animation.h"
+#include "../Animation.h"
 
 // TODO: Fade needs to be independent of brightnessFactor -> scale by brightnessFactor?
 class FadeFilter : public Animation

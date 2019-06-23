@@ -7,8 +7,8 @@
 
 namespace
 {
-    const int FRAME_SIZE = 170; //180; //220; //200; //220;
-    const int HIT_COOLDOWN = 4;
+    const int FRAME_SIZE = 60; //70 170    180; //220; //200; //220;
+    const int HIT_COOLDOWN = 3; // 4 
     const int AMP_THRESHOLD = 9;
 }
 
