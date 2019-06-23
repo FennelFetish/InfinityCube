@@ -7,6 +7,7 @@ namespace AnimationType {
     enum Enum {
         Rainbow,
         Stars,
+        StarsMoving,
         Strobo,
         NodeBeam,
         Dot,

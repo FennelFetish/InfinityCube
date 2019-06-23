@@ -54,6 +54,11 @@ void AnimationChanger::update(AnimationContext& animCtx, long tpf, bool beat) {
 
 
 AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType::Enum type) {
+    //type = AnimationType::KnightRider;
+    
+    Serial.print("Changing animation to: ");
+    Serial.println(type);
+    
     deleteAnimations();
     
     AnimProperties props;
@@ -64,9 +69,15 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
             break;
             
         case AnimationType::Stars:
+            addAnimation( new Stars(220) );
+            addAnimation( new FadeFilter(6) );
+            addAnimation( new MoveFilter(0, 2) );
+            break;
+            
+        case AnimationType::StarsMoving:
             addAnimation( new Stars(100) );
             addAnimation( new FadeFilter(10) );
-            addAnimation( new MoveFilter(11) );
+            addAnimation( new MoveFilter(11, 3) );
             break;
             
         case AnimationType::Strobo:
@@ -91,7 +102,9 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
             break;
             
         case AnimationType::KnightRider:
-            addAnimation( new KnightRider(80) );
+            addAnimation( new Stars(80) );
+            addAnimation( new FadeFilter(20) );
+            addAnimation( new KnightRider() );
             addAnimation( new HueFilter() );
             //addAnimation( new FeedbackFilter(animCtx, 0.6) );
             //addAnimation( new FadeFilter(40) );
@@ -104,6 +117,6 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
 
 
 AnimProperties AnimationChanger::createRandom(AnimationContext& animCtx) {
-    AnimationType::Enum type = (AnimationType::Enum) random(0, AnimationType::COUNT-1);
+    AnimationType::Enum type = (AnimationType::Enum) random(0, AnimationType::COUNT);
     return create(animCtx, type);
 }

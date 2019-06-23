@@ -52,9 +52,9 @@ void setup() {
     rot.setup();
     
     // LED Brightness
-    rot.setValue1(200); // 88   // 250 draws too much power, but we need hight brightness when starting so powerbanks will turn on
+    rot.setValue1(80); // 88   // 250 draws too much power, but we need hight brightness when starting so powerbanks will turn on
     rot.setMin1(5);
-    rot.setMax1(rot.getValue1()); 
+    rot.setMax1(200); 
     rot.setStep1(3);
     
     // Mic Sensitivity
