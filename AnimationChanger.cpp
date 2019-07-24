@@ -54,7 +54,7 @@ void AnimationChanger::update(AnimationContext& animCtx, long tpf, bool beat) {
 
 
 AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType::Enum type) {
-    //type = AnimationType::KnightRider;
+    //type = AnimationType::Stars;
     
     Serial.print("Changing animation to: ");
     Serial.println(type);
@@ -71,7 +71,7 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
         case AnimationType::Stars:
             addAnimation( new Stars(220) );
             addAnimation( new FadeFilter(6) );
-            addAnimation( new MoveFilter(0, 2) );
+            addAnimation( new MoveFilter(0, 3) );
             break;
             
         case AnimationType::StarsMoving:
@@ -106,8 +106,15 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
             addAnimation( new FadeFilter(20) );
             addAnimation( new KnightRider() );
             addAnimation( new HueFilter() );
-            //addAnimation( new FeedbackFilter(animCtx, 0.6) );
-            //addAnimation( new FadeFilter(40) );
+            break;
+            
+        case AnimationType::KnightRiderFull:
+            addAnimation( new Stars(80) );
+            addAnimation( new FadeFilter(20) );
+            KnightRider* knightRider = new KnightRider(520, 36);
+            knightRider->fullStrip = true;
+            addAnimation(knightRider);
+            addAnimation( new HueFilter() );
             break;
     }
     

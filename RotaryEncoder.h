@@ -20,6 +20,8 @@ class RotaryEncoder
         void setMax2(int max)       { value2.valueMax = max; }
         void setStep2(int step)     { value2.step = step; }
         
+        bool getSwitchState() const;
+        
 
     private:
         const int pinClk;
@@ -28,7 +30,7 @@ class RotaryEncoder
         
         int lastClk;
         int lastDt;
-        //int lastSw;
+        int lastSw;
         
         
         struct Val {

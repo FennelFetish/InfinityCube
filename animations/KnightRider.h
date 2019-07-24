@@ -32,8 +32,10 @@ class KnightRider : public Animation
         
     
     public:
-        KnightRider(int stepsPerSecond=220) :
-            beamLen(8), pos(0), state(Forward), lastState(Waiting),
+        bool fullStrip;
+    
+        KnightRider(int stepsPerSecond=220, uint8_t beamLen=8) :
+            fullStrip(false), beamLen(beamLen), pos(0), state(Forward), lastState(Waiting),
             stepsPerSecond(stepsPerSecond), microsPerStep(1000000/stepsPerSecond), t(0)
         {}
         
@@ -49,12 +51,13 @@ class KnightRider : public Animation
             
             t += tpf;
             
+            int edgeLength = fullStrip ? ctx.numLeds : ctx.edgeLength;
             while(t > microsPerStep) {
                 t -= microsPerStep;
                 
                 if(state == Forward) {
                     pos += 1;
-                    if(pos >= ctx.edgeLength-beamLen) {
+                    if(pos >= edgeLength-beamLen) {
                         changeState(Waiting);
                         break;
                     }
@@ -68,8 +71,12 @@ class KnightRider : public Animation
                 }
             }
             
-            applyToEdge(ctx, ctx.edge1);
-            applyToEdge(ctx, ctx.edge2);
-            applyToEdge(ctx, ctx.edge3);
+            if(fullStrip) {
+                applyToEdge(ctx, ctx.leds);
+            } else {
+                applyToEdge(ctx, ctx.edge1);
+                applyToEdge(ctx, ctx.edge2);
+                applyToEdge(ctx, ctx.edge3);
+            }
         }
 };

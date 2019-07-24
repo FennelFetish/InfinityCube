@@ -12,6 +12,7 @@ namespace AnimationType {
         NodeBeam,
         Dot,
         KnightRider,
+        KnightRiderFull,
         COUNT
     };
 }

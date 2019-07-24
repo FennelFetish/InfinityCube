@@ -22,7 +22,7 @@ class MoveFilter : public Animation
         
         virtual void update(AnimationContext& ctx, long tpf, bool beat) override {
             tStep += tpf;
-            if(tStep < stepMicroseconds || !(beat && stepsOnBeat != 0))
+            if(tStep < stepMicroseconds && !(beat && stepsOnBeat != 0))
                 return;
             
             int steps = 0;

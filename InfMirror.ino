@@ -3,6 +3,7 @@
 #include "BassListener.h"
 #include "RotaryEncoder.h"
 #include "DigiPoti.h"
+#include "BeatButton.h"
 
 #include "Animation.h"
 #include "AnimationChanger.h"
@@ -30,6 +31,7 @@ NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod> leds(NUM_LEDS, 0);
 BassListener bassListener(A0);
 RotaryEncoder rot(D3, D2, D4); // cl, dt, sw
 DigiPoti poti(D6, D5);
+BeatButton beatButton(rot);
 
 AnimationContext animCtx(NUM_LEDS, 43);
 AnimationChanger animChanger;
@@ -58,7 +60,7 @@ void setup() {
     rot.setStep1(3);
     
     // Mic Sensitivity
-    rot.setValue2(75);
+    rot.setValue2(0); // 75
     rot.setMin2(0);
     rot.setMax2(100);
     rot.setStep2(2);
@@ -130,7 +132,23 @@ void updateStatusLeds() {
 }
 
 
-
+bool hasBeatHit(long now, long tpf) {
+    bool frameCompleted = bassListener.readMic();
+    if(frameCompleted)
+        updateGain();
+    
+    // Use mic
+    if(rot.getValue2() > 0)
+    {
+        return bassListener.hasHit();
+    }
+    // Use button tap
+    else
+    {
+        beatButton.update(now, tpf);
+        return beatButton.consumeHit();
+    }
+}
 
 
 void loop() {
@@ -146,11 +164,7 @@ void loop() {
         bassListener.setSensitivity( rot.getValue2() );
     }
     
-    bool frameCompleted = bassListener.readMic();
-    if(frameCompleted)
-        updateGain();
-    
-    if(bassListener.hasHit())
+    if(hasBeatHit(t0, loopTpf))
     {
         showBeat = true;
         animCtx.timeSinceBeat = 0;

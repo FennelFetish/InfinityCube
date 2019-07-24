@@ -4,13 +4,18 @@
 
 RotaryEncoder::RotaryEncoder(int pinClk, int pinDt, int pinSw) :
     pinClk(pinClk), pinDt(pinDt), pinSw(pinSw),
-    lastClk(LOW), lastDt(LOW)//, lastSw(LOW)
+    lastClk(LOW), lastDt(LOW), lastSw(LOW)
 {}
 
 
 RotaryEncoder::Val::Val() :
     value(0), valueMin(0), valueMax(100), step(1)
 {}
+
+
+bool RotaryEncoder::getSwitchState() const { 
+    return lastSw == HIGH;
+}
 
 
 void RotaryEncoder::setup()
@@ -31,6 +36,9 @@ bool RotaryEncoder::update()
 {
     bool valueChanged = false;
     
+    // Always read switch
+    lastSw = digitalRead(pinSw);
+    
     // Sample data when clock changes
     int clk = digitalRead(pinClk);
     if(clk == lastClk)
@@ -46,10 +54,8 @@ bool RotaryEncoder::update()
     if(clk != HIGH)
         return false;
 
-    
-    // Read switch
-    int sw = digitalRead(pinSw);
-    Val& val = (sw == HIGH) ? value1 : value2;
+    // Process switch
+    Val& val = (lastSw == HIGH) ? value1 : value2;
     
     if(dt == HIGH)
         val.value += val.step;
@@ -59,7 +65,7 @@ bool RotaryEncoder::update()
     val.value = constrain(val.value, val.valueMin, val.valueMax);
     
     Serial.print("Value ");
-    Serial.print((sw==HIGH) ? "1" : "0");
+    Serial.print((lastSw==HIGH) ? "1 (brightness)" : "2 (sensitivity)");
     Serial.print(" changed to: ");
     Serial.println(val.value);
     
