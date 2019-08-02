@@ -2,6 +2,8 @@
 
 #include "../Animation.h"
 
+// Buggy as hell? Check MoveConvergeFilter as reference
+
 
 class MoveFilter : public Animation
 {

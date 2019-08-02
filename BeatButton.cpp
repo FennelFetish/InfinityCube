@@ -20,10 +20,6 @@ void BeatButton::update(long now, long tpf)
     }
     
     // Auto beat
-    /*if(lastPresses[idxLastPress] < now - PRESS_MAX_GAP) {
-        
-    }*/
-    
     if(tAutoBeat > 0)
         tAutoBeat -= tpf;
     
@@ -69,11 +65,15 @@ void BeatButton::doPress(long now)
         return;
     }
     
-    long t = now - firstPress;
-    microsPerBeat = t / (numPresses-1);
+    long tDiff = now - firstPress;
+    microsPerBeat = tDiff / (numPresses-1);
     
-    //Serial.print("-- microsPerBeat: ");
-    //Serial.println(microsPerBeat);
+    Serial.print("-- tDiff: ");
+    Serial.print(tDiff);
+    Serial.print(", numPresses: ");
+    Serial.print(numPresses);
+    Serial.print(", microsPerBeat: ");
+    Serial.println(microsPerBeat);
     
     tAutoBeat = 0; 
 }

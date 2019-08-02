@@ -6,10 +6,13 @@
 #include "animations/Strobo.h"
 #include "animations/NodeBeam.h"
 #include "animations/KnightRider.h"
+#include "animations/SegmentPulse.h"
 
 #include "animations/FadeFilter.h"
 #include "animations/HueFilter.h"
+#include "animations/HueOffsetFilter.h"
 #include "animations/MoveFilter.h"
+#include "animations/MoveConvergeFilter.h"
 #include "animations/FeedbackFilter.h"
 #include "animations/RandomizationFilter.h"
 
@@ -54,7 +57,7 @@ void AnimationChanger::update(AnimationContext& animCtx, long tpf, bool beat) {
 
 
 AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType::Enum type) {
-    //type = AnimationType::Stars;
+    type = AnimationType::ColorConverge;
     
     Serial.print("Changing animation to: ");
     Serial.println(type);
@@ -108,7 +111,7 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
             addAnimation( new HueFilter() );
             break;
             
-        case AnimationType::KnightRiderFull:
+        case AnimationType::KnightRiderFull: {
             addAnimation( new Stars(80) );
             addAnimation( new FadeFilter(20) );
             KnightRider* knightRider = new KnightRider(520, 36);
@@ -116,6 +119,39 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
             addAnimation(knightRider);
             addAnimation( new HueFilter() );
             break;
+        }
+            
+        case AnimationType::SegmentPulse:
+            addAnimation( new Stars(40) );
+            addAnimation( new SegmentPulse() );
+            addAnimation( new FadeFilter(10) );
+            addAnimation( new HueFilter(8,43) );
+            break;
+            
+        case AnimationType::ColorConverge: {
+            Stars* stars1 = new Stars(20); // 20
+            stars1->idxStart = animCtx.numLeds - 8;
+            stars1->hueOnBeat = 0;//20;
+            addAnimation(stars1);
+            
+            Stars* stars2 = new Stars(20, 128);
+            stars2->idxEnd = 8;
+            stars2->hueOnBeat = 0;//20;
+            addAnimation(stars2);
+            
+            addAnimation( new FadeFilter(1) );
+            addAnimation( new MoveConvergeFilter(9, 6) );
+            addAnimation( new HueOffsetFilter(0,23) );
+            
+            KnightRider* knightRider = new KnightRider(520, 27);
+            knightRider->fullStrip = true;
+            knightRider->saturation = true;
+            addAnimation(knightRider);
+            
+            addAnimation( new FadeFilter(70, true) );
+        
+            break;
+        }
     }
     
     return props;

@@ -10,13 +10,18 @@ class Stars : public Animation
         long microsBetweenSpawns;
         long t;
         float hue; // 0-255
-        float huePerSecond;
-        float hueOnBeat;
     
     public:
-        Stars(int spawnsPerSecond=60) :
+        float huePerSecond;
+        float hueOnBeat;
+        int idxStart;
+        int idxEnd;
+        
+    
+        Stars(int spawnsPerSecond=60, float startHue=0) :
             spawnsPerSecond(spawnsPerSecond), microsBetweenSpawns(1000000 / spawnsPerSecond), t(0),
-            hue(0), huePerSecond(6), hueOnBeat(25)
+            hue(startHue), huePerSecond(6), hueOnBeat(25),
+            idxStart(0), idxEnd(0)
         {}
         
         virtual void update(AnimationContext& ctx, long tpf, bool beat) override
@@ -33,10 +38,14 @@ class Stars : public Animation
             else if(hue < 0)
                 hue += 255;
             
+            
+            //int end = (idxEnd <= 0) ? ctx.numLeds-1 : idxEnd;
+            int end = (idxEnd <= 0) ? ctx.numLeds : idxEnd+1;
+            
             while(t > microsBetweenSpawns) {
                 t -= microsBetweenSpawns;
                 
-                int pos = random(0, ctx.numLeds-1);
+                int pos = random(idxStart, end);
                 ctx.leds[pos].h = hue;
                 ctx.leds[pos].s = 255;
                 ctx.leds[pos].b = ctx.brightnessFactor * 255;

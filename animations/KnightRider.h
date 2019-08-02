@@ -19,8 +19,14 @@ class KnightRider : public Animation
         
         
         void applyToEdge(AnimationContext& ctx, Color8Bit* const edge) {
-            for(int i=0; i<beamLen; ++i) {
-                edge[i+pos].b = ctx.brightnessFactor * 255;
+            if(saturation) {
+                for(int i=0; i<beamLen; ++i) {
+                    edge[i+pos].s = minSaturation;
+                }
+            } else {
+                for(int i=0; i<beamLen; ++i) {
+                    edge[i+pos].b = ctx.brightnessFactor * 255;
+                }
             }
         }
         
@@ -33,10 +39,14 @@ class KnightRider : public Animation
     
     public:
         bool fullStrip;
+        bool saturation;
+        uint8_t minSaturation;
+        
     
         KnightRider(int stepsPerSecond=220, uint8_t beamLen=8) :
             fullStrip(false), beamLen(beamLen), pos(0), state(Forward), lastState(Waiting),
-            stepsPerSecond(stepsPerSecond), microsPerStep(1000000/stepsPerSecond), t(0)
+            stepsPerSecond(stepsPerSecond), microsPerStep(1000000/stepsPerSecond), t(0),
+            saturation(false), minSaturation(40)
         {}
         
         

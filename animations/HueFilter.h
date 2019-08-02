@@ -11,8 +11,8 @@ class HueFilter : public Animation
         float hueOnBeat;
     
     public:
-        HueFilter() :
-            huePerSecond(8), hueOnBeat(25)
+        HueFilter(float perSec=8, float onBeat=25) :
+            huePerSecond(perSec), hueOnBeat(onBeat)
         {
             hue = random(0, 255);
         }

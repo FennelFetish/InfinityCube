@@ -13,6 +13,8 @@ namespace AnimationType {
         Dot,
         KnightRider,
         KnightRiderFull,
+        SegmentPulse,
+        ColorConverge,
         COUNT
     };
 }
