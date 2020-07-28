@@ -29,6 +29,10 @@ class RandomizationFilter : public Animation
                 offsets[i].b += zero;
             }
         }
+        
+        ~RandomizationFilter() {
+            delete[] offsets;
+        }
             
         
         virtual void update(AnimationContext& ctx, long tpf, bool beat) override {

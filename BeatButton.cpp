@@ -4,8 +4,7 @@
 #define PRESS_MAX_GAP 1000000
 
 
-void BeatButton::update(long now, long tpf)
-{
+void BeatButton::update(long now, long tpf) {
     // Button
     if(rot.getSwitchState()) {
         if(!swState) {
@@ -30,8 +29,7 @@ void BeatButton::update(long now, long tpf)
 }
 
 
-void BeatButton::doPress(long now)
-{
+void BeatButton::doPress(long now) {
     tAutoBeat = 30000000;
     
     // Increase index first so we can access last press with current index
@@ -68,12 +66,12 @@ void BeatButton::doPress(long now)
     long tDiff = now - firstPress;
     microsPerBeat = tDiff / (numPresses-1);
     
-    Serial.print("-- tDiff: ");
+    /*Serial.print("-- tDiff: ");
     Serial.print(tDiff);
     Serial.print(", numPresses: ");
     Serial.print(numPresses);
     Serial.print(", microsPerBeat: ");
-    Serial.println(microsPerBeat);
+    Serial.println(microsPerBeat);*/
     
     tAutoBeat = 0; 
 }

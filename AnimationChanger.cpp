@@ -57,10 +57,10 @@ void AnimationChanger::update(AnimationContext& animCtx, long tpf, bool beat) {
 
 
 AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType::Enum type) {
-    type = AnimationType::ColorConverge;
+    //type = AnimationType::SegmentStay;
     
-    Serial.print("Changing animation to: ");
-    Serial.println(type);
+    //Serial.print("Changing animation to: ");
+    //Serial.println(type);
     
     deleteAnimations();
     
@@ -98,8 +98,8 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
             
         case AnimationType::Dot:
             addAnimation( new Dot() );
-            addAnimation( new MoveFilter(60, 0) );
-            addAnimation( new FeedbackFilter(animCtx, 0.12) );
+            addAnimation( new MoveFilter(60, 0) ); // 60, 0
+            //addAnimation( new FeedbackFilter(animCtx, 0.12) ); // 0.12
             addAnimation( new HueFilter() );
             //addAnimation( new FadeFilter(40) );
             break;
@@ -127,6 +127,15 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
             addAnimation( new FadeFilter(10) );
             addAnimation( new HueFilter(8,43) );
             break;
+            
+        case AnimationType::SegmentStay: {
+            SegmentPulse* segmentPulse = new SegmentPulse();
+            segmentPulse->setRandomizeColor(true);
+            addAnimation( segmentPulse );
+            addAnimation( new FadeFilter(2) );
+            addAnimation( new HueOffsetFilter(110,127) );
+            break;
+        }
             
         case AnimationType::ColorConverge: {
             Stars* stars1 = new Stars(20); // 20

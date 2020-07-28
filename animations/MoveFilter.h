@@ -52,8 +52,6 @@ class MoveFilter : public Animation
                 for(; i<ctx.numLeds; ++i)
                     ctx.leds[i].b = 0;
             }
-            
-
         }
-    
+
 };

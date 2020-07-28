@@ -8,6 +8,19 @@
 #include "Animation.h"
 #include "AnimationChanger.h"
 
+/*const int D0 = 16;
+const int D1 = 5;
+const int D2 = 4;
+const int D3 = 0;
+const int D4 = 2;
+const int D5 = 14;
+const int D6 = 12;
+const int D7 = 13;
+const int D8 = 15;
+const int D9 = 3;
+const int D10 = 1;*/
+
+
 
 
 const int NUM_LEDS = 130;
@@ -26,7 +39,7 @@ const int NUM_LEDS = 130;
 // (-> avoids if(red>255) conditions etc...)
 
 
-NeoPixelBus<NeoGrbFeature, NeoEsp8266Dma800KbpsMethod> leds(NUM_LEDS, 0);
+NeoPixelBus<NeoGrbFeature, NeoWs2812Method> leds(NUM_LEDS, 0);
 
 BassListener bassListener(A0);
 RotaryEncoder rot(D3, D2, D4); // cl, dt, sw
@@ -138,13 +151,11 @@ bool hasBeatHit(long now, long tpf) {
         updateGain();
     
     // Use mic
-    if(rot.getValue2() > 0)
-    {
+    if(rot.getValue2() > 0) {
         return bassListener.hasHit();
     }
     // Use button tap
-    else
-    {
+    else {
         beatButton.update(now, tpf);
         return beatButton.consumeHit();
     }
@@ -158,24 +169,20 @@ void loop() {
     animTpf += loopTpf;
     animCtx.timeSinceBeat += loopTpf;
     
-    if(rot.update())
-    {
+    if(rot.update()) {
         animCtx.brightnessFactor = rot.getValue1() / 255.0;
         bassListener.setSensitivity( rot.getValue2() );
     }
     
-    if(hasBeatHit(t0, loopTpf))
-    {
+    if(hasBeatHit(t0, loopTpf)) {
         showBeat = true;
         animCtx.timeSinceBeat = 0;
         //Serial.println("-------------------------");
     }
 
     // 170 =~ 40fps, 222 =~ 30fps, 266 =~ 25fps, 340 = ~20fps, 400 = ~17fps   ---> outdated values (they are calculated based on 150 mics frametime)
-    if(ledUpdateInterval++ > 140 && leds.CanShow()) // 130
-    {
-        if(!ledsUpdated)
-        {
+    if(ledUpdateInterval++ > 140 && leds.CanShow()) { // 130
+        if(!ledsUpdated) {
             animChanger.update(animCtx, animTpf, showBeat);
             
             Animation* anim = animChanger.animation;

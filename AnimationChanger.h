@@ -14,6 +14,7 @@ namespace AnimationType {
         KnightRider,
         KnightRiderFull,
         SegmentPulse,
+        SegmentStay,
         ColorConverge,
         COUNT
     };

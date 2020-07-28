@@ -13,6 +13,10 @@ class FeedbackFilter : public Animation
             copy(new Color8Bit[ctx.numLeds]), feedback(feedback)
         {}
         
+        ~FeedbackFilter() {
+            delete[] copy;
+        }
+        
         
         virtual void prepare(AnimationContext& ctx) {
             for(int i=0; i<ctx.numLeds; ++i) {

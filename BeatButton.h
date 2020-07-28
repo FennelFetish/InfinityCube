@@ -9,7 +9,8 @@ class BeatButton
 {
     public:
         BeatButton(const RotaryEncoder& rotaryEncoder) :
-            rot(rotaryEncoder), hit(false), swState(false), idxLastPress(0), microsPerBeat(500000), tAutoBeat(30000000)
+            rot(rotaryEncoder), hit(false), swState(true), idxLastPress(0),
+            microsPerBeat(500000), tAutoBeat(1) // default to 120 bpm at boot
         {}
         
         void update(long now, long tpf);
@@ -28,8 +29,8 @@ class BeatButton
         long lastPresses[NUM_PRESSES];
         int idxLastPress;
         
-        long microsPerBeat;
-        long tAutoBeat;
+        long microsPerBeat; // delay between hits in microseconds
+        long tAutoBeat; // time until next beat hit
         
         void doPress(long now);
     
