@@ -13,6 +13,7 @@
 #include "animations/HueOffsetFilter.h"
 #include "animations/MoveFilter.h"
 #include "animations/MoveConvergeFilter.h"
+#include "animations/MoveSegmentFilter.h"
 #include "animations/FeedbackFilter.h"
 #include "animations/RandomizationFilter.h"
 
@@ -57,7 +58,7 @@ void AnimationChanger::update(AnimationContext& animCtx, long tpf, bool beat) {
 
 
 AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType::Enum type) {
-    //type = AnimationType::SegmentStay;
+    //type = AnimationType::StarsMoving;
     
     //Serial.print("Changing animation to: ");
     //Serial.println(type);
@@ -96,13 +97,22 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
             //addAnimation( new RandomizationFilter(animCtx) );
             break;
             
-        case AnimationType::Dot:
-            addAnimation( new Dot() );
-            addAnimation( new MoveFilter(60, 0) ); // 60, 0
-            //addAnimation( new FeedbackFilter(animCtx, 0.12) ); // 0.12
+        case AnimationType::DotExplode: {
+            Dot* dot1 = new Dot();
+            dot1->setDotIndex(animCtx.edgeLength-1);
+            addAnimation(dot1);
+            addAnimation( new MoveSegmentFilter(0, animCtx.edgeLength-1, -100, 0) );
+            
+            Dot* dot2 = new Dot();
+            dot2->setDotIndex(animCtx.edgeLength);
+            addAnimation(dot2);
+            addAnimation( new MoveSegmentFilter(animCtx.edgeLength, animCtx.numLeds-1, 100, 0) );
+            
+            addAnimation( new FeedbackFilter(animCtx, 0.18) );
             addAnimation( new HueFilter() );
-            //addAnimation( new FadeFilter(40) );
+            addAnimation( new FadeFilter(1) );
             break;
+        }
             
         case AnimationType::KnightRider:
             addAnimation( new Stars(80) );

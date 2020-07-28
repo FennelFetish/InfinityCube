@@ -21,8 +21,6 @@ const int D9 = 3;
 const int D10 = 1;*/
 
 
-
-
 const int NUM_LEDS = 130;
 //const int DATA_PIN = 1;   // 1 2 4 5 6 7
 

@@ -2,23 +2,53 @@
 
 #include "../Animation.h"
 
-// Buggy as hell? Check MoveConvergeFilter as reference
-
 
 class MoveFilter : public Animation
 {
-    private:
+    protected:
         float stepsPerSecond;
         short stepsOnBeat;
         
         unsigned int stepMicroseconds;
         unsigned int tStep;
+        int stepSign;
+        
+        
+        void move(AnimationContext& ctx, int idxStart, int idxEnd, int steps) {
+            // Move forward
+            if(steps > 0) {
+                int limit = idxStart+steps;
+                for(int i=idxEnd; i>=limit; --i)
+                    ctx.leds[i] = ctx.leds[i-steps];
+                
+                for(int i=idxStart; i<steps; ++i)
+                    ctx.leds[i].b = 0;
+            }
+            // Move backward
+            else if(steps < 0) {
+                int limit = idxEnd+steps;
+                int i=idxStart;
+                for(; i<=limit; ++i)
+                    ctx.leds[i] = ctx.leds[i-steps];
+                
+                for(; i<idxEnd; ++i)
+                    ctx.leds[i].b = 0;
+            }
+        }
+        
+        
+        virtual void move(AnimationContext& ctx, int steps) {
+            move(ctx, 0, ctx.numLeds-1, steps);
+        }
+        
+        
     
     public:
         MoveFilter(int stepsPerSecond=120, int stepsOnBeat=14) :
             stepsPerSecond(stepsPerSecond), stepsOnBeat(stepsOnBeat),
-            stepMicroseconds(stepsPerSecond > 0 ? round(1000000 / stepsPerSecond) : 0),
-            tStep(0)
+            stepMicroseconds(round(1000000 / abs(stepsPerSecond))),
+            tStep(0),
+            stepSign(stepsPerSecond >= 0 ? 1 : -1)
         {}
             
         
@@ -31,27 +61,12 @@ class MoveFilter : public Animation
             if(stepMicroseconds > 0) {
                 steps = tStep / stepMicroseconds;
                 tStep -= steps * stepMicroseconds;
+                steps *= stepSign;
             }
             
             if(beat)
                 steps += stepsOnBeat;
             
-            if(steps > 0) {
-                for(int i=ctx.numLeds-steps; i>0; --i)
-                    ctx.leds[i] = ctx.leds[i-steps];
-                
-                for(int i=0; i<steps; ++i)
-                    ctx.leds[i].b = 0;
-            }
-            else if(steps < 0) {
-                int limit = ctx.numLeds-steps;
-                int i=0;
-                for(; i<limit; ++i)
-                    ctx.leds[i] = ctx.leds[i-steps];
-                
-                for(; i<ctx.numLeds; ++i)
-                    ctx.leds[i].b = 0;
-            }
+            move(ctx, steps);
         }
-
 };

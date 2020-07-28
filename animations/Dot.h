@@ -9,9 +9,18 @@ class Dot : public Animation
         static constexpr float beatLen = 100000.0f;
     
         long tSinceBeat;
+        
+        int dotIndex;
+        
     
     public:
-        Dot() {}
+        Dot() : dotIndex(0) {}
+        
+        
+        void setDotIndex(int index) {
+            dotIndex = index;
+        }
+        
         
         virtual void update(AnimationContext& ctx, long tpf, bool beat) override
         {
@@ -23,7 +32,7 @@ class Dot : public Animation
             if(dotFactor < 0)
                 dotFactor = 0;
             
-            ctx.leds[0].b = round(ctx.brightnessFactor * 255 * dotFactor);
+            ctx.leds[dotIndex].b = round(ctx.brightnessFactor * 255 * dotFactor);
         }
     
 };
