@@ -12,16 +12,16 @@
 #include "animations/HueFilter.h"
 #include "animations/HueOffsetFilter.h"
 #include "animations/MoveFilter.h"
-#include "animations/MoveConvergeFilter.h"
 #include "animations/MoveSegmentFilter.h"
 #include "animations/FeedbackFilter.h"
 #include "animations/RandomizationFilter.h"
 
 
 AnimationChanger::AnimationChanger() :
-    animation(nullptr), tRemaining( random(minDuration, maxDuration) )
+    animation(nullptr), tRemaining( random(minDuration, maxDuration) ), historyIndex(0)
 {
-    
+    for(int i=0; i<historySize; ++i)
+        history[i] = -1;
 }
 
 
@@ -58,13 +58,12 @@ void AnimationChanger::update(AnimationContext& animCtx, long tpf, bool beat) {
 
 
 AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType::Enum type) {
-    //type = AnimationType::StarsMoving;
+    //type = AnimationType::DotExplode;
     
     //Serial.print("Changing animation to: ");
     //Serial.println(type);
     
     deleteAnimations();
-    
     AnimProperties props;
     
     switch(type) {
@@ -72,11 +71,12 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
             addAnimation( new AnimRainbow() );
             break;
             
-        case AnimationType::Stars:
+        case AnimationType::Stars: {
             addAnimation( new Stars(220) );
             addAnimation( new FadeFilter(6) );
             addAnimation( new MoveFilter(0, 3) );
             break;
+        }
             
         case AnimationType::StarsMoving:
             addAnimation( new Stars(100) );
@@ -87,7 +87,7 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
         case AnimationType::Strobo:
             addAnimation( new Strobo() );
             addAnimation( new HueFilter() );
-            props.durationFactor = 0.5f;
+            props.durationFactor = 0.33f;
             break;
             
         case AnimationType::NodeBeam:
@@ -101,16 +101,16 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
             Dot* dot1 = new Dot();
             dot1->setDotIndex(animCtx.edgeLength-1);
             addAnimation(dot1);
-            addAnimation( new MoveSegmentFilter(0, animCtx.edgeLength-1, -100, 0) );
+            addAnimation( new MoveSegmentFilter(0, animCtx.edgeLength-1, -90, 0) );
             
             Dot* dot2 = new Dot();
             dot2->setDotIndex(animCtx.edgeLength);
             addAnimation(dot2);
-            addAnimation( new MoveSegmentFilter(animCtx.edgeLength, animCtx.numLeds-1, 100, 0) );
+            addAnimation( new MoveSegmentFilter(animCtx.edgeLength, animCtx.numLeds-1, 90, 0) );
             
-            addAnimation( new FeedbackFilter(animCtx, 0.18) );
+            addAnimation( new FeedbackFilter(animCtx, 0.26) );
             addAnimation( new HueFilter() );
-            addAnimation( new FadeFilter(1) );
+            addAnimation( new FadeFilter(7) );
             break;
         }
             
@@ -131,19 +131,24 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
             break;
         }
             
-        case AnimationType::SegmentPulse:
+        case AnimationType::SegmentPulse: {
+            SegmentPulse* segPulse = new SegmentPulse();
+            segPulse->setRandomHalfChance(25);
+        
             addAnimation( new Stars(40) );
-            addAnimation( new SegmentPulse() );
+            addAnimation( segPulse );
             addAnimation( new FadeFilter(10) );
-            addAnimation( new HueFilter(8,43) );
+            addAnimation( new HueFilter(8, 43) );
             break;
+        }
             
         case AnimationType::SegmentStay: {
-            SegmentPulse* segmentPulse = new SegmentPulse();
-            segmentPulse->setRandomizeColor(true);
-            addAnimation( segmentPulse );
+            SegmentPulse* segPulse = new SegmentPulse();
+            segPulse->setRandomizeColor(true);
+            
+            addAnimation( segPulse );
             addAnimation( new FadeFilter(2) );
-            addAnimation( new HueOffsetFilter(110,127) );
+            addAnimation( new HueOffsetFilter(110, 127) );
             break;
         }
             
@@ -159,8 +164,12 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
             addAnimation(stars2);
             
             addAnimation( new FadeFilter(1) );
-            addAnimation( new MoveConvergeFilter(9, 6) );
-            addAnimation( new HueOffsetFilter(0,23) );
+            
+            int half = animCtx.numLeds / 2;
+            addAnimation( new MoveSegmentFilter(0, half, 9, 6) );
+            addAnimation( new MoveSegmentFilter(half+1, animCtx.numLeds-1, -9, -6) );
+            
+            addAnimation( new HueOffsetFilter(0, 23) );
             
             KnightRider* knightRider = new KnightRider(520, 27);
             knightRider->fullStrip = true;
@@ -168,7 +177,6 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
             addAnimation(knightRider);
             
             addAnimation( new FadeFilter(70, true) );
-        
             break;
         }
     }
@@ -177,8 +185,31 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
 }
 
 
+bool AnimationChanger::checkHistory(int animIdx) {
+    for(int i=0; i<historySize; ++i) {
+        if(history[i] == animIdx)
+            return true;
+    }
+    
+    return false;
+}
+
+
+void AnimationChanger::addHistory(int animIdx) {
+    history[historyIndex] = animIdx;
+    historyIndex++;
+    if(historyIndex >= historySize)
+        historyIndex = 0;
+}
+
 
 AnimProperties AnimationChanger::createRandom(AnimationContext& animCtx) {
-    AnimationType::Enum type = (AnimationType::Enum) random(0, AnimationType::COUNT);
+    int animIdx = random(0, AnimationType::COUNT);
+    if(checkHistory(animIdx)) // Only retry once
+        animIdx = random(0, AnimationType::COUNT);
+        
+    addHistory(animIdx);
+    
+    AnimationType::Enum type = (AnimationType::Enum) animIdx;
     return create(animCtx, type);
 }

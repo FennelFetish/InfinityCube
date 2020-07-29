@@ -6,8 +6,8 @@
 class MoveFilter : public Animation
 {
     protected:
-        float stepsPerSecond;
-        short stepsOnBeat;
+        int stepsPerSecond;
+        int stepsOnBeat;
         
         unsigned int stepMicroseconds;
         unsigned int tStep;
@@ -27,7 +27,7 @@ class MoveFilter : public Animation
             // Move backward
             else if(steps < 0) {
                 int limit = idxEnd+steps;
-                int i=idxStart;
+                int i = idxStart;
                 for(; i<=limit; ++i)
                     ctx.leds[i] = ctx.leds[i-steps];
                 
@@ -42,11 +42,18 @@ class MoveFilter : public Animation
         }
         
         
+    private:
+        unsigned int calcStepMicroseconds(int stepsPerSecond) {
+            if(stepsPerSecond == 0)
+                return 0;
+            return round(1000000 / abs(stepsPerSecond));
+        }
+        
     
     public:
         MoveFilter(int stepsPerSecond=120, int stepsOnBeat=14) :
             stepsPerSecond(stepsPerSecond), stepsOnBeat(stepsOnBeat),
-            stepMicroseconds(round(1000000 / abs(stepsPerSecond))),
+            stepMicroseconds(calcStepMicroseconds(stepsPerSecond)),
             tStep(0),
             stepSign(stepsPerSecond >= 0 ? 1 : -1)
         {}

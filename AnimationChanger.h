@@ -10,7 +10,6 @@ namespace AnimationType {
         StarsMoving,
         Strobo,
         NodeBeam,
-        //Dot,
         DotExplode,
         KnightRider,
         KnightRiderFull,
@@ -39,7 +38,14 @@ class AnimationChanger
         static constexpr long minDuration = 3000000;
         static constexpr long maxDuration = 20000000;
         long tRemaining;
-    
+        
+        static constexpr int historySize = 3;
+        int history[historySize];
+        int historyIndex;
+        
+        bool checkHistory(int animIdx);
+        void addHistory(int animIdx);
+        
         void addAnimation(Animation* anim);
         void deleteAnimations();
 

@@ -27,8 +27,8 @@ class FeedbackFilter : public Animation
         
         virtual void update(AnimationContext& ctx, long tpf, bool beat) override {
             for(int i=0; i<ctx.numLeds; ++i) {
-                ctx.leds[i].b += copy[i].b * feedback;
-                ctx.leds[i].b = constrain(ctx.leds[i].b, 0, 255);
+                int val = ctx.leds[i].b + (copy[i].b * feedback);
+                ctx.leds[i].b = constrain(val, 0, 255);
             }
         }
     

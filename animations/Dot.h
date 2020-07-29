@@ -12,23 +12,35 @@ class Dot : public Animation
         
         int dotIndex;
         
+        int stayFrames;
+        int stayFramesRemaining;
+        
     
     public:
-        Dot() : dotIndex(0) {}
+        Dot() : dotIndex(0), stayFrames(0), stayFramesRemaining(0) {}
         
         
         void setDotIndex(int index) {
             dotIndex = index;
         }
         
+        void setStayFrames(int frames) {
+            stayFrames = frames;
+        }
         
-        virtual void update(AnimationContext& ctx, long tpf, bool beat) override
-        {
+        
+        virtual void update(AnimationContext& ctx, long tpf, bool beat) override {
             tSinceBeat += tpf;
-            if(beat)
+            if(beat) {
                 tSinceBeat = 0;
+                stayFramesRemaining = stayFrames;
+            }
+            
+            stayFramesRemaining--;
+            long t = (stayFramesRemaining > 0) ? 0 : tSinceBeat;
+            
                 
-            float dotFactor = 1.0f - ((float)tSinceBeat / beatLen);
+            float dotFactor = 1.0f - ((float)t / beatLen);
             if(dotFactor < 0)
                 dotFactor = 0;
             

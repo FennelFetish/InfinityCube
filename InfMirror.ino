@@ -175,7 +175,6 @@ void loop() {
     if(hasBeatHit(t0, loopTpf)) {
         showBeat = true;
         animCtx.timeSinceBeat = 0;
-        //Serial.println("-------------------------");
     }
 
     // 170 =~ 40fps, 222 =~ 30fps, 266 =~ 25fps, 340 = ~20fps, 400 = ~17fps   ---> outdated values (they are calculated based on 150 mics frametime)
