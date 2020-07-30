@@ -7,6 +7,8 @@
 #include "animations/NodeBeam.h"
 #include "animations/KnightRider.h"
 #include "animations/SegmentPulse.h"
+#include "animations/Caterpillar.h"
+#include "animations/Noise.h"
 
 #include "animations/FadeFilter.h"
 #include "animations/HueFilter.h"
@@ -53,6 +55,11 @@ void AnimationChanger::update(AnimationContext& animCtx, long tpf, bool beat) {
     if(beat && tRemaining <= 0) {
         AnimProperties props = createRandom(animCtx);
         tRemaining = random(minDuration, maxDuration) * props.durationFactor;
+        
+        if(props.clearOnStart) {
+            for(int i=0; i<animCtx.numLeds; ++i)
+                animCtx.leds[i].b = 0;
+        }
     }
 }
 
@@ -111,6 +118,8 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
             addAnimation( new FeedbackFilter(animCtx, 0.26) );
             addAnimation( new HueFilter() );
             addAnimation( new FadeFilter(7) );
+            
+            props.clearOnStart = true;
             break;
         }
             
@@ -177,6 +186,17 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
             addAnimation(knightRider);
             
             addAnimation( new FadeFilter(70, true) );
+            break;
+        }
+        
+        case AnimationType::Caterpillar: {
+            addAnimation( new Caterpillar() );
+            //props.durationFactor = 33.33f;
+            break;
+        }
+        
+        case AnimationType::Noise: {
+            addAnimation( new Noise() );
             break;
         }
     }

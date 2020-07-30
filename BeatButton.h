@@ -2,7 +2,7 @@
 
 #include "RotaryEncoder.h"
 
-#define NUM_PRESSES 12
+#define NUM_PRESSES 16
 
 
 class BeatButton

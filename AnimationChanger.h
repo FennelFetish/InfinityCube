@@ -16,6 +16,8 @@ namespace AnimationType {
         SegmentPulse,
         SegmentStay,
         ColorConverge,
+        Caterpillar,
+        Noise,
         COUNT
     };
 }
@@ -24,9 +26,10 @@ namespace AnimationType {
 
 struct AnimProperties {
     float durationFactor;
+    bool clearOnStart;
     
     AnimProperties() : 
-        durationFactor(1.0f)
+        durationFactor(1.0f), clearOnStart(false)
     {}
 };
 

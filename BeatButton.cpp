@@ -24,7 +24,8 @@ void BeatButton::update(long now, long tpf) {
     
     if(tAutoBeat <= 0 && microsPerBeat > 0) {
         hit = true;
-        tAutoBeat = microsPerBeat;
+        //tAutoBeat = microsPerBeat;
+        tAutoBeat += microsPerBeat;
     }
 }
 
@@ -58,7 +59,7 @@ void BeatButton::doPress(long now) {
             idx = NUM_PRESSES - 1;
     }
     
-    if(numPresses < 8) {
+    if(numPresses < 4) {
         microsPerBeat = 0;
         return;
     }
