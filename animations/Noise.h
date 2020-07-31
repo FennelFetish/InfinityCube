@@ -50,7 +50,7 @@ class Noise : public Animation
             
             for(int i=0; i<ctx.numLeds; ++i) {
                 float n = getNoise(i);
-                float b = ((n+bFactor) / (1.0f+bFactor)) * 255.0f;
+                float b = ((n+bFactor) / (1.0f+bFactor)) * 255.0f * ctx.brightnessFactor;
                 //float h = ((n+1.0f) * 0.5f) * 90 + hueOffset;
                 float h = ((n+1.0f) * 0.5f) * 100 + hueOffset;
                 

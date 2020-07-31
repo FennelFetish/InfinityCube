@@ -65,7 +65,7 @@ void AnimationChanger::update(AnimationContext& animCtx, long tpf, bool beat) {
 
 
 AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType::Enum type) {
-    //type = AnimationType::DotExplode;
+    //type = AnimationType::Caterpillar;
     
     //Serial.print("Changing animation to: ");
     //Serial.println(type);
@@ -191,7 +191,10 @@ AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType
         
         case AnimationType::Caterpillar: {
             addAnimation( new Caterpillar() );
-            //props.durationFactor = 33.33f;
+            
+            HueOffsetFilter* hueOffset = new HueOffsetFilter(6, 17);
+            hueOffset->setPersistent(true);
+            addAnimation( hueOffset );
             break;
         }
         
