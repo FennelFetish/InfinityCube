@@ -25,17 +25,21 @@ class Noise : public Animation
         
     
     public:
-        Noise() : x(0), y(0), hueOffset(0), time(0), bFactor(minBFactor) {}
+        Noise() : x(0), y(0), hueOffset(0), time(0), bFactor(minBFactor)
+        {
+            x += random(0, 500) / 10.0f;
+            y += random(0, 500) / 10.0f;
+        }
         
 
         virtual void update(AnimationContext& ctx, long tpf, bool beat) override {
             time += tpf / 1000000.0;
             //hueOffset = 40 + sin(0.3f * time)*90; // -50 .. +130
-            hueOffset = 25 + sin(0.2 * time)*100; // -75 .. +125
+            hueOffset = 30 + sin(0.25 * time)*100; // -70 .. +130
             
             float sec = tpf / 1000000.0f;
             //x -= 3.5f * sec;
-            y += 0.25f * sec;
+            y += 0.5f * sec; // 0.25
             
             //bFactor -= sec * 2.0f;
             bFactor -= sec * 1.0f;

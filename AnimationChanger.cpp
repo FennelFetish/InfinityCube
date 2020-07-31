@@ -65,7 +65,7 @@ void AnimationChanger::update(AnimationContext& animCtx, long tpf, bool beat) {
 
 
 AnimProperties AnimationChanger::create(AnimationContext& animCtx, AnimationType::Enum type) {
-    //type = AnimationType::NodeBeam;
+    //type = AnimationType::Noise;
     
     //Serial.print("Changing animation to: ");
     //Serial.println(type);
