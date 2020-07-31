@@ -18,8 +18,20 @@ void BeatButton::update(long now, long tpf) {
         swState = false;
     }
     
+    int tempoAdjust = rot.getValue2() - lastTempoAdjust;
+    if(tempoAdjust != 0) {
+        microsPerBeat -= tempoAdjust * 250; // 0.25 ms
+        /*Serial.print("Tempo adjusted by ");
+        Serial.print(tempoAdjust);
+        Serial.print("ms to ");
+        Serial.println(microsPerBeat);*/
+        
+        lastTempoAdjust = rot.getValue2();
+        tAutoBeat = 0;
+    }
+    
     // Auto beat
-    if(tAutoBeat > 0)
+    //if(tAutoBeat > 0)
         tAutoBeat -= tpf;
     
     if(tAutoBeat <= 0 && microsPerBeat > 0) {

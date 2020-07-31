@@ -9,7 +9,7 @@ class BeatButton
 {
     public:
         BeatButton(const RotaryEncoder& rotaryEncoder) :
-            rot(rotaryEncoder), hit(false), swState(true), idxLastPress(0),
+            rot(rotaryEncoder), hit(false), swState(true), lastTempoAdjust(0), idxLastPress(0),
             microsPerBeat(500000), tAutoBeat(1) // default to 120 bpm at boot
         {}
         
@@ -25,6 +25,7 @@ class BeatButton
         const RotaryEncoder& rot;
         bool hit;
         bool swState;
+        int lastTempoAdjust;
         
         long lastPresses[NUM_PRESSES];
         int idxLastPress;

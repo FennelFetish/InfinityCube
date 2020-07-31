@@ -1,5 +1,5 @@
 #include "RotaryEncoder.h"
-#include <arduino.h>
+//#include <arduino.h>
 
 
 RotaryEncoder::RotaryEncoder(int pinClk, int pinDt, int pinSw) :
@@ -55,7 +55,7 @@ bool RotaryEncoder::update()
         return false;
 
     // Process switch
-    Val& val = (lastSw == HIGH) ? value1 : value2;
+    Val& val = (lastSw == STATE_VAL1) ? value1 : value2;
     
     if(dt == HIGH)
         val.value += val.step;
@@ -64,10 +64,10 @@ bool RotaryEncoder::update()
     
     val.value = constrain(val.value, val.valueMin, val.valueMax);
     
-    Serial.print("Value ");
-    Serial.print((lastSw==HIGH) ? "1 (brightness)" : "2 (sensitivity)");
+    /*Serial.print("Value ");
+    Serial.print((lastSw==STATE_VAL1) ? "1 (brightness)" : "2 (sensitivity)");
     Serial.print(" changed to: ");
-    Serial.println(val.value);
+    Serial.println(val.value);*/
     
     return true;
 }

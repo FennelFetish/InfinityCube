@@ -39,7 +39,7 @@ const int NUM_LEDS = 130;
 
 NeoPixelBus<NeoGrbFeature, NeoWs2812Method> leds(NUM_LEDS, 0);
 
-BassListener bassListener(A0);
+//BassListener bassListener(A0);
 RotaryEncoder rot(D3, D2, D4); // cl, dt, sw
 DigiPoti poti(D6, D5);
 BeatButton beatButton(rot);
@@ -70,12 +70,12 @@ void setup() {
     rot.setMax1(200); 
     rot.setStep1(3);
     
-    // Mic Sensitivity
+    // Mic Sensitivity ----> Tempo adjust
     rot.setValue2(0); // 75
-    rot.setMin2(0);
-    rot.setMax2(100);
-    rot.setStep2(2);
-    bassListener.setSensitivity(rot.getValue2());
+    rot.setMin2(-2147483648);
+    rot.setMax2(2147483647);
+    rot.setStep2(1);
+    //bassListener.setSensitivity(rot.getValue2());
     
     // this resets all the neopixels to an off state
     leds.Begin();
@@ -107,19 +107,19 @@ bool apply() {
 
 
 void updateGain() {
-    static const int targetGain = 512; // 300 (why 300?)
+    /*static const int targetGain = 512; // 300 (why 300?)
     static const int gainRange = 15;
     
     int avg = bassListener.getLastFrameAvgAmp();
     if(avg > targetGain + gainRange)
         poti.down();
     else if(avg < targetGain - gainRange)
-        poti.up();
+        poti.up();*/
 }
 
 
 void updateStatusLeds() {
-    static const int gainRange = 15;
+    /*static const int gainRange = 15;
     static const int colorV = 20;
     
     // Gain status
@@ -139,24 +139,24 @@ void updateStatusLeds() {
     
     // Beat
     animCtx.leds[2].h = 128;
-    animCtx.leds[2].b = showBeat ? colorV : 0;
+    animCtx.leds[2].b = showBeat ? colorV : 0;*/
 }
 
 
 bool hasBeatHit(long now, long tpf) {
-    bool frameCompleted = bassListener.readMic();
+    /*bool frameCompleted = bassListener.readMic();
     if(frameCompleted)
-        updateGain();
+        updateGain();*/
     
     // Use mic
-    if(rot.getValue2() > 0) {
+    /*if(rot.getValue2() > 0) {
         return bassListener.hasHit();
     }
     // Use button tap
-    else {
+    else {*/
         beatButton.update(now, tpf);
         return beatButton.consumeHit();
-    }
+    //}
 }
 
 
@@ -169,7 +169,7 @@ void loop() {
     
     if(rot.update()) {
         animCtx.brightnessFactor = rot.getValue1() / 255.0;
-        bassListener.setSensitivity( rot.getValue2() );
+        //bassListener.setSensitivity( rot.getValue2() );
     }
     
     if(hasBeatHit(t0, loopTpf)) {

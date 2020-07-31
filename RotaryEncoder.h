@@ -1,4 +1,5 @@
 #pragma once
+#include <arduino.h>
 
 class RotaryEncoder
 {
@@ -24,6 +25,8 @@ class RotaryEncoder
         
 
     private:
+        static constexpr int STATE_VAL1 = LOW; //HIGH
+    
         const int pinClk;
         const int pinDt;
         const int pinSw;
